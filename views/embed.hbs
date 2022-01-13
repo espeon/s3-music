@@ -1,0 +1,46 @@
+<!-- It's a handlebars template! hbs(handlebars): http://handlebarsjs.com/ -->
+
+<!DOCTYPE html>
+<html class="uk-section-secondary">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hello Bulma!</title>
+    <!-- UIkit CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.1.6/css/uikit.min.css" />
+    <!-- UIkit JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.1.6/js/uikit.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.1.6/js/uikit-icons.min.js"></script>
+    <!--plyr JS/CSS-->
+    <script src="https://wsubs.glitch.me/plyr.js"></script>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.5.6/plyr.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&family=Noto+Sans+JP:wght@300&display=swap" rel="stylesheet">
+  </head>
+  
+  <body class="uk-background-secondary">
+<div class="uk-card uk-card-secondary uk-grid-collapse uk-width-1-2@m uk-position-center uk-card-hover uk-child-width-1-2@m" uk-grid>
+
+<div class="uk-inline">
+    <img src="{{imageURL}}" alt="">
+    <div class="uk-overlay uk-light uk-position-top">
+      <p class="uk-card-title uk-margin-remove" style="font-family:'Montserrat', 'Noto Sans JP', sans-serif;"><span style="background-color: #000000a3">{{{title}}}</span></p>
+      <p class="uk-margin-small" style="font-family:'Montserrat', 'Noto Sans JP', sans-serif;">
+        <span style="background-color: #000000a3">{{{artist}}}</span>
+      </p>
+    </div>
+  <p class="uk-position-bottom">
+      <audio id="player" src="{{{video}}}" controls crossorigin playsinline>
+      </audio></p>
+</div>
+  
+</div>
+    
+  <script>document.addEventListener('DOMContentLoaded', () => {
+      const source = '{{{video}}}'
+      const audio = document.querySelector('audio');
+      const player = new Plyr(audio);
+      window.player = player;
+    })
+  </script>
+  </body>
+</html>

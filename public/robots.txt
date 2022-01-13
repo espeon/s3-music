@@ -1,0 +1,8 @@
+User-agent: Twitterbot
+Disallow:
+
+User-agent: Discordbot
+Disallow:
+
+User-agent: *
+Disallow: /

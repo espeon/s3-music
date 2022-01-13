@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html class="uk-background-secondary">
+{{> head}}
+<head>
+  <meta content="text/html; charset=UTF-8" name="Content-Type" />
+  <link rel="alternate" type="text/json+oembed" href="{{{oembed}}}">
+  <meta property="og:type" content="website" /> 
+  <meta property="og:title" content="{{{title}}}" />
+  <meta property="og:description" content="{{{artist}}}" />
+  <meta property="og:image" content="{{{imageURL}}}" />
+  <meta property="twitter:title" content="{{{title}}}" />
+  <meta property="twitter:description" content="{{{artist}}}" />
+  <meta property="twitter:image" content="{{{imageURL}}}" />
+  <meta property="twitter:site_name" content="s3 music player" />
+  <meta property="twitter:card" content="player">
+  <meta property="twitter:player" content="https://s3-music.glitch.me{{{playerURL}}}">
+  <meta property="twitter:player:height" content="500">
+  <meta property="twitter:player:width" content="500">
+  </head>
+<body>
+  <script src="https://code.jquery.com/jquery-2.2.2.min.js"></script>
+    <div class="uk-card uk-card-secondary uk-width-3-4@m uk-width-auto uk-position-center uk-card-hover">
+      <div class="uk-card-media-left uk-cover-container">
+        <img src="{{{imageURL}}}" alt="https://picsum.photos/600" uk-cover>
+        <canvas width="600" height="600"></canvas>
+    </div>
+      <div class="uk-card-body" style="background: #252525;">
+    <p class="uk-card-title uk-margin-remove" style="font-family:'Montserrat', 'Noto Sans JP', sans-serif;">{{{title}}}</p>
+      <p class="uk-margin-small" style="font-family:'Montserrat', 'Noto Sans JP', sans-serif;">
+        {{{artist}}}
+      </p>
+    <p>
+      <audio id="player" src="{{{video}}}" controls crossorigin playsinline>
+    </audio></p>
+      </div>
+</div>
+  <script src="https://cdn.rawgit.com/video-dev/hls.js/18bb552/dist/hls.min.js"></script>
+
+  <script>document.addEventListener('DOMContentLoaded', () => {
+      console.log({{{json}}})
+      const source = '{{{video}}}'
+      const audio = document.querySelector('audio');
+      const player = new Plyr(audio, { captions: { active: true, update: true, language: 'en', } });
+
+      if (!source.includes(".m3u8")) {
+        player.source = {
+          type: 'audio',
+          title: 'Example title',
+          sources: [
+            {
+              src: source,
+            }
+          ]
+        }
+      }  else if(source.includes(".mpd")){
+        const dash = dashjs.MediaPlayer().create();
+        const video = document.querySelector('video');
+        dash.initialize(video, source, true);
+        // Update caption tracks after initializing Plyr to get the generated captions
+        // For more options see: https://github.com/sampotts/plyr/#options
+        const player = new Plyr(video, {controls:['play-large', // The large play button in the center
+    'play', // Play/pause playback
+    'progress', // The progress bar and scrubber for playback and buffering
+    'current-time', // The current time of playback
+    'duration', // The full duration of the media
+    'mute', // Toggle mute
+    'volume', // Volume control
+    'captions', // Toggle captions
+    'settings', // Settings menu
+    'pip', // Picture-in-picture (currently Safari only)
+    'airplay', // Airplay (currently Safari only)
+    'download', // Show a download button with a link to either the current source or a custom URL you specify in your options
+    'fullscreen', // Toggle fullscreen
+                                                ]});
+        // Expose player and dash so they can be used from the console
+        window.player = player;
+        window.dash = dash;
+      } else {
+        const hls = new Hls();
+        hls.loadSource(source);
+        hls.attachMedia(video);
+        window.hls = hls;
+      }
+      window.player = player
+
+    });
+  </script>
+</body>
+
+</html>
