@@ -1,7 +1,6 @@
 let error = [];
 const config = process.env;
 const express = require("express");
-const request = require("request");
 const cors = require("cors");
 const fs = require("fs");
 const hbs = require("hbs");
@@ -86,11 +85,13 @@ app.get(["/listen", "/embed"], async (req, res) => {
   }
   if (m.common.album && m.common.picture) {
     let imageBuffer = m.common.picture[0].data;
+    metadata[tw.video.split("?")[0]].common.picture = "true";
+    fs.writeFileSync("./metadata.json", JSON.stringify(metadata));
     saveImageToFile(m.common.albumartist + " - " + m.common.album, imageBuffer);
     tw.imageURL = "/" + m.common.albumartist + " - " + m.common.album + ".jpg";
   }
   tw.oembed =
-    "https://s3-music.glitch.me/oembed?a=" + a + "&bucket=" + req.query.bucket;
+    "https://"+req.headers.host+"/oembed?a=" + a + "&bucket=" + req.query.bucket;
   tw.playerURL = req.url.replace("/listen", "/embed");
   if (req.url.startsWith("/embed")) return res.render("embed", tw);
   else res.render("audio", tw);
@@ -132,6 +133,10 @@ app.get("/oembed", async (req, res) => {
   }
   if (m.common.album && m.common.picture) {
     let imageBuffer = m.common.picture[0].data;
+
+    metadata[tw.video.split("?")[0]].common.picture = "true";
+    fs.writeFileSync("./metadata.json", JSON.stringify(metadata));
+    
     saveImageToFile(m.common.albumartist + " - " + m.common.album, imageBuffer);
     tw.imageURL = "/" + m.common.albumartist + " - " + m.common.album + ".jpg";
   }
@@ -139,13 +144,13 @@ app.get("/oembed", async (req, res) => {
     version: 1.0,
     type: "rich",
     provider_name: "s3-test",
-    provider_url: "https://s3music.glitch.me",
+    provider_url: "https://twitter.com",
     height: 400,
     width: "100%",
     title: tw.title,
     description: tw.artist,
     thumbnail_url: tw.imageurl,
-    html: `<iframe width="100%" height="400" scrolling="no" frameborder="no" src="https://s3-music.glitch.me/embed?a=${
+    html: `<iframe width="100%" height="400" scrolling="no" frameborder="no" src="https://`+req.headers.host+`/embed?a=${
       req.query.a
     }&bucket=${req.query.bucket ? req.query.bucket : "music"}"></iframe>`
   };
@@ -168,7 +173,7 @@ app.get("/api/s3/objects", async (req, res) => {
     result.push({
       file: item.name.split("/")[item.name.split("/").length - 1],
       uri:isMediaFile(item.name)?
-        "https://s3-music.glitch.me/listen?a=" +
+        "https://"+req.headers.host+"/listen?a=" +
         item.name.replace(/(&)+/g, "%26") +
         "&bucket=" +
         req.query.bucket : item.name
@@ -215,9 +220,6 @@ async function readFileMetadata(url) {
   return mm.parseStream(stream, null, { duration: true }).then(metadatae => {
     console.log(metadatae.common);
     metadata[url.split("?")[0]] = { common: metadatae.common };
-    if (metadatae.common.picture) {
-      metadata[url.split("?")[0]].common.picture = "cool";
-    }
     fs.writeFileSync("./metadata.json", JSON.stringify(metadata));
     return metadatae;
   });
@@ -237,6 +239,7 @@ function saveImageToFile(filename, buffer) {
   } else {
     //nothing
   }
+  console.log(buffer)
   return new Promise(resolve => {
     fs.writeFile("public/" + filename + ".jpg", buffer, "binary", function(
       err
